@@ -1,0 +1,32 @@
+#Graph3D {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#css label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Добавляем отступ между элементами */
+}
+
+#css input[type="checkbox"] {
+    transform: scale(0.8); /* Уменьшаем размер чекбокса */
+    margin-right: -50px;
+    margin-left: -50px;
+}
+
+#css input[type="text"] {
+    width: 110px; /* ширина текстового поля */
+    height: 20px; /* высота текстового поля */
+    font-size: 12px; /* размер шрифта */
+    padding: 2px; /* внутренние отступы */
+    margin-right: -50px;
+}
+
+.controls-wrapper {
+    position: absolute;
+    top: 790px; /* Устанавливаем отступ сверху */
+    left: 10px; /* Устанавливаем отступ слева */
+}
