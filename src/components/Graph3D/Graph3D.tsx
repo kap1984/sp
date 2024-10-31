@@ -59,6 +59,9 @@ const Graph3D: React.FC = () => {
     const [showPolygonIds, setShowPolygonIds] = useState(false);
     const [polygonIdInput, setPolygonIdInput] = useState<string>('');
     const [selectedForm, setSelectedForm] = useState("sphere");
+    const [highlightedPolygonIds, setHighlightedPolygonIds] = useState<number[]>([]);
+    const [paintByClick, setPaintByClick] = useState(false);
+
 
     const transformationsRef = useRef<any>(null);
 
@@ -86,8 +89,7 @@ const Graph3D: React.FC = () => {
             return surface;
         });
     }
-
-
+    
     function updateScene(type: string) {
         const previousForm = selectedForm;
         setSelectedForm(type);
@@ -229,7 +231,7 @@ const Graph3D: React.FC = () => {
         scene.forEach((surface) => {
             if (polygonsOnly?.current?.checked) {
                 const polygons: Polygon[] = [];
-                const polygonIdsArray = polygonIdInput.split(',').map(id => id.trim());
+                const polygonIdsArray = parsePolygonIds(polygonIdInput);
                 scene.forEach((surface, index) => {
                     math3D.calcCenter(surface);
                     math3D.calcDistance(surface, WIN.CAMERA, EDistance.distance);
@@ -255,7 +257,7 @@ const Graph3D: React.FC = () => {
                         r = Math.round(r * lumen);
                         g = Math.round(g * lumen);
                         b = Math.round(b * lumen);
-                        const isMatchingId = polygonIdsArray.includes(polygon.id.toString());
+                        const isMatchingId = highlightedPolygonIds.includes(Number(polygon.id));
                         graph && graph.polygon(points, polygon.rgbToHex(isMatchingId ? 0 : r, isMatchingId ? 0 : g, isMatchingId ? 0 : b));
 
                         if (showPolygonIdsRef?.current?.checked) {
@@ -285,10 +287,11 @@ const Graph3D: React.FC = () => {
                 );
             }
         });
-
         graph.text(`fps: ${FPS}`, WIN.LEFT, WIN.BOTTOM - 1, 'black', '25');
         graph.renderFrame();
     }
+
+    
 
     useEffect(() => {
         graphRef.current = getGraph({
@@ -316,8 +319,35 @@ const Graph3D: React.FC = () => {
 
     function handleIdInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         setPolygonIdInput(event.target.value);
+        const ids = parsePolygonIds(event.target.value);
+        setHighlightedPolygonIds(ids);
         updateScene(selectedForm);
-    };
+    }
+    
+
+    function parsePolygonIds(input: string): number[] {
+        const ids = new Set<number>();
+    
+        input.split(',').forEach(part => {
+            const trimmedPart = part.trim();
+    
+            if (trimmedPart.includes('-')) {
+                const [start, end] = trimmedPart.split('-').map(Number);
+                if (!isNaN(start) && !isNaN(end)) {
+                    for (let i = start; i <= end; i++) {
+                        ids.add(i);
+                    }
+                }
+            } else {
+                const id = parseInt(trimmedPart, 10);
+                if (!isNaN(id)) {
+                    ids.add(id);
+                }
+            }
+        });
+    
+        return Array.from(ids);
+    }
 
     return (<>
         <canvas id = "Graph3D"></canvas>
@@ -360,7 +390,7 @@ const Graph3D: React.FC = () => {
                         type="text"
                         value={polygonIdInput}
                         onChange={handleIdInputChange}
-                        placeholder="1, 2, 3..."
+                        placeholder="1, 2, 3... или 1-3"
                     />
             </label><br />
             <label>

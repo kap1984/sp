@@ -12,29 +12,39 @@ class Ellipsoid extends Surface {
         const points = [];
         const edges = [];
         const polygons = [];
+
+        // Создание точек эллипсоида
         for (let i = 0; i <= count; i++) {
-            const T = ((2 * Math.PI) / count) * i;
-            for (let j = 0; j < count; j++) {
+            const T = (Math.PI / count) * i; 
+            for (let j = 0; j <= count; j++) { // Увеличиваем диапазон до count включительно
                 const p = ((2 * Math.PI) / count) * j;
-                points.push(new Point(a * Math.sin(T) * Math.cos(p) + x, c * Math.cos(T) + y, b * Math.sin(T) * Math.sin(p) + z));
+                points.push(new Point(
+                    a * Math.sin(T) * Math.cos(p) + x, 
+                    c * Math.cos(T) + y, 
+                    b * Math.sin(T) * Math.sin(p) + z
+                ));
             }
         }
 
+        // Создание рёбер эллипсоида
         for (let i = 0; i < points.length; i++) {
-            if (i + 1 < points.length && (i + 1) % count !== 0) {
+            if ((i + 1) % (count + 1) !== 0) { // Учёт нового диапазона
                 edges.push(new Edge(i, i + 1));
-            } else if ((i + 1) % count === 0) {
-                edges.push(new Edge(i, i + 1 - count));
+            } else {
+                edges.push(new Edge(i, i + 1 - (count + 1)));
             }
-            if (i < points.length - count) {
-                edges.push(new Edge(i, i + count));
+            if (i + (count + 1) < points.length) {
+                edges.push(new Edge(i, i + (count + 1)));
             }
         }
-        for (let i = 0; i < points.length; i++) {
-            if (i + 1 + count < points.length && (i + 1) % count !== 0) {
-                polygons.push(new Polygon([i, i + 1, i + 1 + count, i + count], color));
-            } else if (i + count < points.length && (i + 1) % count === 0) {
-                polygons.push(new Polygon([i, i + 1 - count, i + 1, i + count], color));
+
+        // Создание полигонов эллипсоида
+        for (let i = 0; i < points.length - (count + 1); i++) {
+            if ((i + 1) % (count + 1) !== 0) {
+                polygons.push(new Polygon(
+                    [i, i + 1, i + 1 + (count + 1), i + (count + 1)],
+                    color
+                ));
             }
         }
 
