@@ -60,7 +60,6 @@ const Graph3D: React.FC = () => {
     const [polygonIdInput, setPolygonIdInput] = useState<string>('');
     const [selectedForm, setSelectedForm] = useState("sphere");
     const [highlightedPolygonIds, setHighlightedPolygonIds] = useState<number[]>([]);
-    const [paintByClick, setPaintByClick] = useState(false);
 
 
     const transformationsRef = useRef<any>(null);
@@ -231,7 +230,6 @@ const Graph3D: React.FC = () => {
         scene.forEach((surface) => {
             if (polygonsOnly?.current?.checked) {
                 const polygons: Polygon[] = [];
-                const polygonIdsArray = parsePolygonIds(polygonIdInput);
                 scene.forEach((surface, index) => {
                     math3D.calcCenter(surface);
                     math3D.calcDistance(surface, WIN.CAMERA, EDistance.distance);
@@ -291,8 +289,30 @@ const Graph3D: React.FC = () => {
         graph.renderFrame();
     }
 
+    function parsePolygonIds(input: string): number[] {
+        const ids = new Set<number>();
     
-
+        input.split(',').forEach(part => {
+            const trimmedPart = part.trim();
+    
+            if (trimmedPart.includes('-')) {
+                const [start, end] = trimmedPart.split('-').map(Number);
+                if (!isNaN(start) && !isNaN(end)) {
+                    for (let i = start; i <= end; i++) {
+                        ids.add(i);
+                    }
+                }
+            } else {
+                const id = parseInt(trimmedPart, 10);
+                if (!isNaN(id)) {
+                    ids.add(id);
+                }
+            }
+        });
+    
+        return Array.from(ids);
+    }
+    
     useEffect(() => {
         graphRef.current = getGraph({
             id: 'Graph3D',
@@ -322,31 +342,6 @@ const Graph3D: React.FC = () => {
         const ids = parsePolygonIds(event.target.value);
         setHighlightedPolygonIds(ids);
         updateScene(selectedForm);
-    }
-    
-
-    function parsePolygonIds(input: string): number[] {
-        const ids = new Set<number>();
-    
-        input.split(',').forEach(part => {
-            const trimmedPart = part.trim();
-    
-            if (trimmedPart.includes('-')) {
-                const [start, end] = trimmedPart.split('-').map(Number);
-                if (!isNaN(start) && !isNaN(end)) {
-                    for (let i = start; i <= end; i++) {
-                        ids.add(i);
-                    }
-                }
-            } else {
-                const id = parseInt(trimmedPart, 10);
-                if (!isNaN(id)) {
-                    ids.add(id);
-                }
-            }
-        });
-    
-        return Array.from(ids);
     }
 
     return (<>
@@ -391,7 +386,7 @@ const Graph3D: React.FC = () => {
                         value={polygonIdInput}
                         onChange={handleIdInputChange}
                         placeholder="1, 2, 3... или 1-3"
-                    />
+                    /> 
             </label><br />
             <label>
                 ᅠВыбор формы:

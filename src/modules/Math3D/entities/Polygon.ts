@@ -23,7 +23,7 @@ class Polygon {
     index = 0;
     R = 0;
     visibility = true;
-    id: string; // Поле для ID
+    id: string;
 
     constructor(points: number[] = [], color = '#444444') {
         this.points = points;

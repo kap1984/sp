@@ -163,8 +163,7 @@ class Graph {
         this.ctxV.closePath();
         this.ctxV.fill();
         this.ctxV.stroke();
-    
-        // Отображение ID (если он передан)
+
         if (id) {
             const centerX = points.reduce((sum, point) => sum + point.x, 0) / points.length;
             const centerY = points.reduce((sum, point) => sum + point.y, 0) / points.length;
